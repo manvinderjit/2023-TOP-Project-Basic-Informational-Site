@@ -1,52 +1,48 @@
-import http from 'http';
-import { readFile } from 'node:fs/promises';
+import express from 'express';
+import path from 'node:path';
+import { fileURLToPath } from 'url';
 
+const app = express();
 const PORT = process.env.PORT || 8080;
 
-const server = http.createServer(async (req, res) => {
-    if (req.url === '/') {
-        try {
-            const filePath = new URL('./pages/index.html', import.meta.url);
-            const contents = await readFile(filePath, { encoding: 'utf8' });
-            res.writeHead(200, { 'Content-Type': 'text/html' });
-            res.end(contents);
-        } catch (err) {
-            console.error(err.message);
-        }
-    }
+const __dirname = (path.dirname(fileURLToPath(import.meta.url))) + '/pages';
 
-    else if (req.url === '/about') {
-        try {
-            const filePath = new URL('./pages/about.html', import.meta.url);
-            const contents = await readFile(filePath, { encoding: 'utf8' });
-            res.writeHead(200, { 'Content-Type': 'text/html' });
-            res.end(contents);
-        } catch (err) {
-            console.error(err.message);
+app.get('/', (req, res) => {
+    res.sendFile('index.html', {root: __dirname}, (e) => {
+        if (e) {
+            console.error(e.message);
         }
-    }
-
-    else if (req.url === '/contact-me') {
-        try {
-            const filePath = new URL('./pages/contact-me.html', import.meta.url);
-            const contents = await readFile(filePath, { encoding: 'utf8' });
-            res.writeHead(200, { 'Content-Type': 'text/html' });
-            res.end(contents);
-        } catch (err) {
-            console.error(err.message);
-        }
-    }
-
-    else {
-        try {
-            const filePath = new URL('./pages/404.html', import.meta.url);
-            const contents = await readFile(filePath, { encoding: 'utf8' });
-            res.writeHead(200, { 'Content-Type': 'text/html' });
-            res.end(contents);
-        } catch (err) {
-            console.error(err.message);
-        }
-    }
+    })
 });
 
-server.listen(PORT, () => console.log(`Server is running at http://localhost:${PORT}`));
+app.get('/about', (req, res) => {
+    res.sendFile('about.html', {root: __dirname}, (e) => {
+        if (e) {
+            console.error(e.message);
+        } else {
+            console.log('About page visited!');
+        }
+    })
+});
+
+app.get('/contact-me', (req, res) => {
+    res.sendFile('contact-me.html', {root: __dirname}, (e) => {
+        if (e) {
+            console.error(e.message);
+        } else {
+            console.log('Contact Me page visited!');
+        }
+    })
+});
+
+app.get('*', (req, res) => {
+    res.sendFile('404.html', {root: __dirname}, (e) => {
+        if (e) {
+            console.error(e.message);
+        } else {
+            console.log('404 page visited!');
+        }
+    })
+});
+
+app.listen(PORT, () => console.log(`App is running at http://localhost:${PORT}`));
